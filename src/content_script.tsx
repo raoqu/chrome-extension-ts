@@ -1,5 +1,12 @@
 import $ from 'jquery';
 import MessageUtil, { MESSAGE_PERFORM } from './lib/message_util';
+import ContentUtil from './lib/content_util';
+import OptionsUtil, { IExtensionOptions } from './lib/option_util';
+
+// content-script.ts
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import Dock from './component/dock';
 
 function copyToClipboard(text: string) {
   const textarea = document.createElement('textarea')
@@ -42,3 +49,20 @@ MessageUtil.on(MESSAGE_PERFORM, (data: any) => {
   console.log(obj)
   return obj
 })
+
+OptionsUtil.Get((options: IExtensionOptions) => {
+  if (!!options.showDock) {
+    // 创建一个div元素，用于渲染React组件
+    const dockContainer = document.createElement('div');
+    dockContainer.id = 'dock-container';
+    dockContainer.style.zIndex = '9999';
+    dockContainer.style.top = '0';
+    dockContainer.style.left = '50%';
+    dockContainer.style.position = 'fixed';
+    document.body.appendChild(dockContainer);
+
+    const root = createRoot(dockContainer)
+    root.render(<Dock />);
+  }
+})
+

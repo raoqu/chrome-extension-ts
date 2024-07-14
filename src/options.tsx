@@ -1,70 +1,55 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import MessageUtil from "./lib/message_util";
+import OptionsUtil, { IExtensionOptions } from './lib/option_util'
+
 
 const Options = () => {
-  const [color, setColor] = useState<string>("");
+
   const [status, setStatus] = useState<string>("");
-  const [like, setLike] = useState<boolean>(false);
+
+  /**** options ******/
+  const [color, setColor] = useState<string>("");
+  const [showDock, setShowDock] = useState<boolean>(false);
+
+  const saveOptions = (options: IExtensionOptions) => {
+    OptionsUtil.Save(options, () => {
+      setStatus('Options saved.')
+      const id = setTimeout(() => {
+        setStatus("");
+      }, 1000);
+      return () => clearTimeout(id);
+    })
+  }
 
   useEffect(() => {
     // Restores select box and checkbox state using the preferences
     // stored in chrome.storage.
-    chrome.storage.sync.get(
-      {
-        favoriteColor: "red",
-        likesColor: true,
-      },
-      (items) => {
-        setColor(items.favoriteColor);
-        setLike(items.likesColor);
+    OptionsUtil.Get((options: IExtensionOptions) => {
+      options = {
+        ...OptionsUtil.DEFAULT_OPTIONS,
+        ...options
       }
-    );
+      setShowDock(options.showDock!);
+    })
   }, []);
 
-  const saveOptions = () => {
+  const onSaveOptions = () => {
     // Saves options to chrome.storage.sync.
-    chrome.storage.sync.set(
-      {
-        favoriteColor: color,
-        likesColor: like,
-      },
-      () => {
-        // Update status to let user know options were saved.
-        setStatus("Options saved.");
-        const id = setTimeout(() => {
-          setStatus("");
-        }, 1000);
-        return () => clearTimeout(id);
-      }
-    );
+    saveOptions({
+      showDock: showDock,
+    })
   };
 
   return (
     <>
       <div>
-        Favorite color: <select
-          value={color}
-          onChange={(event) => setColor(event.target.value)}
-        >
-          <option value="red">red</option>
-          <option value="green">green</option>
-          <option value="blue">blue</option>
-          <option value="yellow">yellow</option>
-        </select>
-      </div>
-      <div>
         <label>
-          <input
-            type="checkbox"
-            checked={like}
-            onChange={(event) => setLike(event.target.checked)}
-          />
-          I like colors.
+          <input type="checkbox" checked={showDock} onChange={(event) => setShowDock(event.target.checked)} />在页面中显示配置入口
         </label>
       </div>
-      <div>{status}</div>
-      <button onClick={saveOptions}>Save</button>
+      <button onClick={onSaveOptions}>Save</button>
+      <div style={{ backgroundColor: '#efe', width: '100%', minWidth:'300px',margin:'5px 0 5px 0'}}>{status}</div>
     </>
   );
 };
