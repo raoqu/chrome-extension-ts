@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
+import MessageUtil, { MESSAGE_PERFORM } from "./lib/message_util";
 
 const Popup = () => {
   const [count, setCount] = useState(0);
@@ -16,27 +17,13 @@ const Popup = () => {
   }, []);
 
   const changeBackground = () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      const tab = tabs[0];
-      if (tab.id) {
-        chrome.tabs.sendMessage(
-          tab.id,
-          {
-            color: "#555555",
-          },
-          (msg) => {
-            console.log("result message:", msg);
-          }
-        );
-      }
-    });
-  };
+    MessageUtil.sendTab(MESSAGE_PERFORM, {});
+  }
 
   return (
     <>
       <ul style={{ minWidth: "700px" }}>
         <li>Current URL: {currentURL}</li>
-        <li>Current Time: {new Date().toLocaleTimeString()}</li>
       </ul>
       <button
         onClick={() => setCount(count + 1)}

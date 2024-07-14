@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
+import MessageUtil from "./lib/message_util";
 
 const Options = () => {
   const [color, setColor] = useState<string>("");

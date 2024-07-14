@@ -1,6 +1,7 @@
-function polling() {
-  // console.log("polling");
-  setTimeout(polling, 1000 * 30);
+import MessageUtil from "./lib/message_util";
+
+const __updateBadge = (text: string) => {
+  chrome.action.setBadgeText({ text: text })
 }
 
-polling();
+MessageUtil.on('update-badge', __updateBadge, false)
